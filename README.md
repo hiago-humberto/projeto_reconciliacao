@@ -48,11 +48,18 @@ python gerador_dados.py
 ```
 
 ### 5. Execute o motor de reconciliação:
+Para demonstrar a evolução da arquitetura de software, este repositório possui duas versões do motor. Escolha qual deseja executar:
 
+**Opção A: Versão Básica (Lógica Procedural)**
+Executa o código em bloco único, ideal para entender a lógica matemática passo a passo.
 ```bash
-python reconciliador.py
+python reconciliador_v1.py
 ```
 
+**Opção B: Versão Avançada (Clean Code / Funções) ⭐ Recomendado**
+```bash
+python reconciliador_v2_funcoes.py
+```
 ### 6. Resultado:
 
 O resultado será exibido no terminal e o arquivo `relatorio_excecoes_auditoria.csv` será gerado na raiz do projeto apenas com as divergências.
@@ -69,14 +76,19 @@ O resultado será exibido no terminal e o arquivo `relatorio_excecoes_auditoria.
 ## 📁 Estrutura do Projeto 
 
 ```
+
+## 📁 Estrutura do Projeto
+
+```text
 projeto_reconciliacao/
 │
 ├── gerador_dados.py
-├── reconciliador.py
-├── extrato_itau.csv (gerado automaticamente)
-├── extrato_bradesco.csv (gerado automaticamente)
-├── sistema_financeiro.csv (gerado automaticamente)
-├── relatorio_excecoes_auditoria.csv (gerado após auditoria)
+├── reconciliador_v1_basico.py      <-- (Motor inicial em bloco único)
+├── reconciliador_v2_funcoes.py     <-- (Motor refatorado com Clean Code)
+├── extrato_itau.csv                (gerado automaticamente)
+├── extrato_bradesco.csv            (gerado automaticamente)
+├── sistema_financeiro.csv          (gerado automaticamente)
+├── relatorio_excecoes_auditoria.csv(gerado após auditoria)
 └── README.md
 ```
 
