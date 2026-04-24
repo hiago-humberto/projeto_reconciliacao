@@ -91,20 +91,17 @@ projeto_reconciliacao/
 ├── relatorio_excecoes_auditoria.csv(gerado após auditoria)
 └── README.md
 ```
-
 ---
 
 ## 💡 Observações
 
-* Caso o comando `python` não funcione, tente:
+* 
 
-```bash
-python3 gerador_dados.py
+
 ```
-
-* Caso o `pip` não funcione:
-
+Caso o pip não funcione:
 ```bash
 python -m pip install pandas
 ```
+📊 Sobre o Projeto
 Projeto desenvolvido com foco na intersecção entre Ciências Contábeis, Administração e Engenharia de Dados, visando otimizar processos de Controladoria Multi-bancos.
