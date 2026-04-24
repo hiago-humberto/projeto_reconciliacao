@@ -1,0 +1,6 @@
+ID_Transacao;Data_Emissao;Cliente;Valor_Esperado;Status
+SYS001;2026-04-20;Empresa A;1500.0;Aberto
+SYS002;2026-04-21;Empresa B;3250.5;Aberto
+SYS003;2026-04-22;Empresa C;800.0;Aberto
+SYS004;2026-04-23;Empresa D;4100.0;Aberto
+SYS005;2026-04-24;Empresa E;950.0;Aberto
