@@ -96,7 +96,15 @@ projeto_reconciliacao/
 ---
 
 ## 💡 Observações
+```
+```bash
+Caso o comando python não funcione, tente:
 
+python3 gerador_dados.py
+
+```
+
+```
 ```
 Caso o pip não funcione:
 ```bash
