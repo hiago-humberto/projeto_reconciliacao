@@ -79,7 +79,7 @@ O resultado será exibido no terminal e o arquivo `relatorio_excecoes_auditoria.
 
 ## 📁 Estrutura do Projeto
 
-```text
+```
 projeto_reconciliacao/
 │
 ├── gerador_dados.py
