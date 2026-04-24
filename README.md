@@ -74,11 +74,6 @@ O resultado será exibido no terminal e o arquivo `relatorio_excecoes_auditoria.
 ---
 
 ## 📁 Estrutura do Projeto 
-
-```
-
-## 📁 Estrutura do Projeto
-
 ```
 projeto_reconciliacao/
 │
@@ -95,12 +90,12 @@ projeto_reconciliacao/
 │
 └── README.md
 ```
+
+
+```
 ---
 
 ## 💡 Observações
-
-* 
-
 
 ```
 Caso o pip não funcione:
