@@ -91,21 +91,17 @@ projeto_reconciliacao/
 └── README.md
 ```
 
-
-```
 ---
 
+
 ## 💡 Observações
-```
-```bash
+
 Caso o comando python não funcione, tente:
-
+```bash
 python3 gerador_dados.py
-
 ```
 
-```
-```
+
 Caso o pip não funcione:
 ```bash
 python -m pip install pandas
