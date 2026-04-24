@@ -82,13 +82,17 @@ O resultado será exibido no terminal e o arquivo `relatorio_excecoes_auditoria.
 ```
 projeto_reconciliacao/
 │
-├── gerador_dados.py
-├── reconciliador_v1_basico.py      <-- (Motor inicial em bloco único)
-├── reconciliador_v2_funcoes.py     <-- (Motor refatorado com Clean Code)
-├── extrato_itau.csv                (gerado automaticamente)
-├── extrato_bradesco.csv            (gerado automaticamente)
-├── sistema_financeiro.csv          (gerado automaticamente)
-├── relatorio_excecoes_auditoria.csv(gerado após auditoria)
+├── gerador_dados.py # Gera dados simulando ERP e extratos bancários
+│
+├── reconciliador_v1_basico.py # Versão inicial (processamento em bloco único)
+├── reconciliador_v2_funcoes.py # Versão refatorada (uso de funções / clean code)
+│
+├── extrato_itau.csv # Gerado automaticamente
+├── extrato_bradesco.csv # Gerado automaticamente
+├── sistema_financeiro.csv # Gerado automaticamente
+│
+├── relatorio_excecoes_auditoria.csv # Gerado após execução da auditoria
+│
 └── README.md
 ```
 ---
