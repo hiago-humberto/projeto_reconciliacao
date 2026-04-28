@@ -57,6 +57,17 @@ if st.button("🚀 INICIAR AUDITORIA INTELIGENTE", use_container_width=True):
             df_final['Valor_Recebido'] = df_final['Valor_Recebido'].fillna(0)
             df_final['Diferenca'] = df_final['Valor_Esperado'] - df_final['Valor_Recebido']
             
+            # Cruzamento
+            df_final = pd.merge(df_sistema, df_bancos, left_on='Cliente', right_on='Cliente_Limpo', how='left')
+            
+            # Tratamento de Nulos
+            df_final['Valor_Recebido'] = df_final['Valor_Recebido'].fillna(0)
+            
+            # 👇 A LINHA SALVADORA QUE FALTAVA 👇
+            df_final['Banco'] = df_final['Banco'].fillna('Não Localizado')
+            
+            df_final['Diferenca'] = df_final['Valor_Esperado'] - df_final['Valor_Recebido']
+
             # 2. Identificar Outliers (Valores fora do padrão configurado)
             df_final['Alerta_Fraude'] = np.where(
                 (df_final['Eh_Duplicado'] == True) | (df_final['Valor_Recebido'] > limite_outlier),
@@ -77,17 +88,16 @@ if st.button("🚀 INICIAR AUDITORIA INTELIGENTE", use_container_width=True):
             st.divider()
 
             # --- 5. DASHBOARD ---
+            # --- 5. DASHBOARD ---
             c1, c2 = st.columns(2)
             with c1:
-                fig_status = px.sunburst(df_final, path=['Alerta_Fraude', 'Banco'], values='Valor_Recebido', 
+                # A MÁGICA AQUI: Filtramos os zerados para não bugar o gráfico
+                df_grafico = df_final[df_final['Valor_Recebido'] > 0]
+                
+                # Desenhamos o gráfico usando o df_grafico (que está limpo)
+                fig_status = px.sunburst(df_grafico, path=['Alerta_Fraude', 'Banco'], values='Valor_Recebido', 
                                          title="Mapa de Risco por Instituição", color_discrete_sequence=px.colors.qualitative.Prism)
                 st.plotly_chart(fig_status, use_container_width=True)
-            
-            with c2:
-                # Mostrar as maiores fraudes/erros detectados
-                st.markdown("### 🔥 Top Alertas de Risco")
-                df_risco = df_final[df_final['Alerta_Fraude'] == "🚩 SUSPEITO"].nlargest(5, 'Valor_Recebido')
-                st.table(df_risco[['Cliente', 'Banco', 'Valor_Recebido', 'Alerta_Fraude']])
 
             # --- 6. EXPORTAÇÃO INTELIGENTE ---
             st.markdown("### 📋 Relatório Consolidado")
