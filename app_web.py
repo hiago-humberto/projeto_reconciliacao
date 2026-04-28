@@ -18,7 +18,7 @@ st.divider()
 # --- 2. ÁREA DE INPUTS ---
 with st.sidebar:
     st.header("⚙️ Configurações do Motor")
-    limite_outlier = st.slider("Sensibilidade de Outlier (R$)", 1000, 20000, 5000)
+    limite_outlier = st.slider("Sensibilidade de Outlier (R$)", 0, 20000, 5000)
     st.info("O motor marcará como 'Suspeito' qualquer valor recebido acima deste limite que não esteja no ERP.")
 
 col1, col2 = st.columns([1, 2])
@@ -78,13 +78,6 @@ if st.button("🚀 INICIAR AUDITORIA INTELIGENTE", use_container_width=True):
             log_col3.metric("Tempo de Execução", f"{exec_duration:.4f}s")
             log_col4.metric("Alertas de Risco", len(df_final[df_final['Alerta_Fraude'] == "🚩 SUSPEITO"]))
 
-            # --- 4. LOG DE AUDITORIA ---
-            st.toast("Processamento concluído!")
-            log_col1, log_col2, log_col3, log_col4 = st.columns(4)
-            log_col1.metric("Registros ERP", len(df_sistema))
-            log_col2.metric("Registros Bancários", len(df_bancos))
-            log_col3.metric("Tempo de Execução", f"{exec_duration:.4f}s")
-            log_col4.metric("Alertas de Risco", len(df_final[df_final['Alerta_Fraude'] == "🚩 SUSPEITO"]))
 
             st.divider()
 
