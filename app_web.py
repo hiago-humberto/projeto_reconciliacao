@@ -52,22 +52,12 @@ if st.button("🚀 INICIAR AUDITORIA INTELIGENTE", use_container_width=True):
             # 1. Identificar Duplicados Reais (Mesmo cliente, mesmo valor no mesmo banco)
             df_bancos['Eh_Duplicado'] = df_bancos.duplicated(subset=['Cliente_Limpo', 'Valor_Recebido', 'Banco'], keep=False)
             
-            # Cruzamento
+            # Cruzamento (Sem duplicatas no código)
             df_final = pd.merge(df_sistema, df_bancos, left_on='Cliente', right_on='Cliente_Limpo', how='left')
             df_final['Valor_Recebido'] = df_final['Valor_Recebido'].fillna(0)
-            df_final['Diferenca'] = df_final['Valor_Esperado'] - df_final['Valor_Recebido']
-            
-            # Cruzamento
-            df_final = pd.merge(df_sistema, df_bancos, left_on='Cliente', right_on='Cliente_Limpo', how='left')
-            
-            # Tratamento de Nulos
-            df_final['Valor_Recebido'] = df_final['Valor_Recebido'].fillna(0)
-            
-            # 👇 A LINHA SALVADORA QUE FALTAVA 👇
             df_final['Banco'] = df_final['Banco'].fillna('Não Localizado')
-            
             df_final['Diferenca'] = df_final['Valor_Esperado'] - df_final['Valor_Recebido']
-
+            
             # 2. Identificar Outliers (Valores fora do padrão configurado)
             df_final['Alerta_Fraude'] = np.where(
                 (df_final['Eh_Duplicado'] == True) | (df_final['Valor_Recebido'] > limite_outlier),
@@ -88,20 +78,37 @@ if st.button("🚀 INICIAR AUDITORIA INTELIGENTE", use_container_width=True):
             st.divider()
 
             # --- 5. DASHBOARD ---
-            # --- 5. DASHBOARD ---
             c1, c2 = st.columns(2)
             with c1:
                 # A MÁGICA AQUI: Filtramos os zerados para não bugar o gráfico
                 df_grafico = df_final[df_final['Valor_Recebido'] > 0]
                 
-                # Desenhamos o gráfico usando o df_grafico (que está limpo)
+                # Desenhamos o gráfico usando o df_grafico limpo
                 fig_status = px.sunburst(df_grafico, path=['Alerta_Fraude', 'Banco'], values='Valor_Recebido', 
                                          title="Mapa de Risco por Instituição", color_discrete_sequence=px.colors.qualitative.Prism)
                 st.plotly_chart(fig_status, use_container_width=True)
 
-            # --- 6. EXPORTAÇÃO INTELIGENTE ---
+            with c2:
+                # O bloco que havia sumido: Top Maiores Fraudes
+                st.markdown("### 🔥 Top Alertas de Risco")
+                df_risco = df_final[df_final['Alerta_Fraude'] == "🚩 SUSPEITO"].nlargest(5, 'Valor_Recebido')
+                if not df_risco.empty:
+                    st.table(df_risco[['Cliente', 'Banco', 'Valor_Recebido', 'Alerta_Fraude']])
+                else:
+                    st.info("Nenhuma transação suspeita detectada.")
+
+            st.divider()
+
+            # --- 6. EXPORTAÇÃO INTELIGENTE E TABELA COLORIDA ---
             st.markdown("### 📋 Relatório Consolidado")
-            st.dataframe(df_final.style.apply(lambda x: ['background-color: #ffcccc' if v == "🚩 SUSPEITO" else '' for v in x], axis=0), use_container_width=True)
+            
+            # Função limpa e segura para pintar as linhas
+            def colorir_linha(row):
+                cor = 'background-color: #ffcccc' if row['Alerta_Fraude'] == "🚩 SUSPEITO" else ''
+                return [cor] * len(row)
+            
+            # Aplica o estilo linha a linha (axis=1)
+            st.dataframe(df_final.style.apply(colorir_linha, axis=1), use_container_width=True)
             
             csv_data = df_final.to_csv(index=False, sep=';').encode('utf-8')
             st.download_button(
