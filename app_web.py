@@ -78,7 +78,35 @@ if st.button("🚀 INICIAR AUDITORIA INTELIGENTE", use_container_width=True):
             log_col3.metric("Tempo de Execução", f"{exec_duration:.4f}s")
             log_col4.metric("Alertas de Risco", len(df_final[df_final['Alerta_Fraude'] == "🚩 SUSPEITO"]))
 
+            # --- 4. LOG DE AUDITORIA ---
+            st.toast("Processamento concluído!")
+            log_col1, log_col2, log_col3, log_col4 = st.columns(4)
+            log_col1.metric("Registros ERP", len(df_sistema))
+            log_col2.metric("Registros Bancários", len(df_bancos))
+            log_col3.metric("Tempo de Execução", f"{exec_duration:.4f}s")
+            log_col4.metric("Alertas de Risco", len(df_final[df_final['Alerta_Fraude'] == "🚩 SUSPEITO"]))
+
             st.divider()
+
+            # 👇 O BLOCO FINANCEIRO QUE VOLTOU 👇
+            st.markdown("### 💰 Visão Executiva Financeira")
+            
+            # Calculando os totais
+            total_esperado = df_final['Valor_Esperado'].sum()
+            total_recebido = df_final['Valor_Recebido'].sum()
+            
+            # O "Risco" real é o dinheiro esperado que não caiu na conta (Diferença Positiva)
+            total_pendente = df_final.loc[df_final['Diferenca'] > 0, 'Diferenca'].sum()
+            
+            fin_col1, fin_col2, fin_col3 = st.columns(3)
+            fin_col1.metric("Total Esperado (ERP)", f"R$ {total_esperado:,.2f}")
+            fin_col2.metric("Total Conciliado (Bancos)", f"R$ {total_recebido:,.2f}")
+            fin_col3.metric("Risco de Inadimplência", f"R$ {total_pendente:,.2f}", delta="- Furo de Caixa", delta_color="inverse")
+
+            st.divider()
+            # 👆 FIM DO BLOCO FINANCEIRO 👆
+
+            
 
             # --- 5. DASHBOARD DE INSIGHTS ---
             c1, c2 = st.columns(2)
