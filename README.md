@@ -50,54 +50,36 @@ python -m venv .venv
 pip install -r requirements.txt
 ```
 
-### 4. Inicie o servidor:
+### 4. Inicie o Servidor da Aplicação Visual:
 
 ```bash
 streamlit run app_web.py
 ```
+O painel do Audit Intelligence Hub será aberto automaticamente no seu navegador padrão.
 
-### 5. Execute o motor de reconciliação:
-Para demonstrar a evolução da arquitetura de software, este repositório possui duas versões do motor. Escolha qual deseja executar:
-
-**Opção A: Versão Básica (Lógica Procedural)**
-Executa o código em bloco único, ideal para entender a lógica matemática passo a passo.
-```bash
-python reconciliador_v1.py
-```
-
-**Opção B: Versão Avançada (Clean Code / Funções) ⭐ Recomendado**
-```bash
-python reconciliador_v2_funcoes.py
-```
-### 6. Resultado:
-
-O resultado será exibido no terminal e o arquivo `relatorio_excecoes_auditoria.csv` será gerado na raiz do projeto apenas com as divergências.
 
 ---
 
-## 📦 Requisitos
-
-* Python 3.x instalado
-* Pip instalado
-
----
-
-## 📁 Estrutura do Projeto 
+## 📁 Estrutura do Projeto (Modularizado)
+Para garantir manutenção e escalabilidade, a lógica de negócio foi separada da interface do usuário (UI):
 ```
 projeto_reconciliacao/
 │
-├── gerador_dados.py # Gera dados simulando ERP e extratos bancários
+├── app.py                  # Interface Visual e Dashboards (Streamlit)
+├── requirements.txt        # Dependências do projeto
 │
-├── reconciliador_v1_basico.py # Versão inicial (processamento em bloco único)
-├── reconciliador_v2_funcoes.py # Versão refatorada (uso de funções / clean code)
+├── pipeline/               # Camada de Dados e Regras de Negócio (Backend)
+│    ├── __init__.py
+│    ├── ingestion.py       # Validação de Schema e Extração (Data Quality)
+│    ├── transformation.py  # Higienização de strings com Regex
+│    ├── audit.py           # Join de bases e motor de fraudes
+│    ├── datalake.py        # Salvamento de arquivos Parquet (Raw/Processed)
+│    └── orchestrator.py    # Gerente do fluxo de dados
 │
-├── extrato_itau.csv # Gerado automaticamente
-├── extrato_bradesco.csv # Gerado automaticamente
-├── sistema_financeiro.csv # Gerado automaticamente
-│
-├── relatorio_excecoes_auditoria.csv # Gerado após execução da auditoria
-│
-└── README.md
+└── legados_estudo/         # Scripts v1 e v2 mantidos para fins didáticos
+     ├── gerador_dados.py
+     ├── reconciliador_v1.py 
+     └── reconciliador_v2_funcoes.py
 ```
 
 ---
@@ -105,15 +87,10 @@ projeto_reconciliacao/
 
 ## 💡 Observações
 
-Caso o comando python não funcione, tente:
-```bash
-python3 gerador_dados.py
-```
-
 
 Caso o pip não funcione:
 ```bash
 python -m pip install pandas
 ```
 📊 Sobre o Projeto
-Projeto desenvolvido com foco na intersecção entre Ciências Contábeis, Administração e Engenharia de Dados, visando otimizar processos de Controladoria Multi-bancos.
+Projeto desenvolvido com foco na intersecção entre Ciências Contábeis, Administração e Engenharia de Dados, visando otimizar processos de Controladoria Multi-bancos e sistemas de gestão. Uma prova técnica de como a Engenharia de Software pode resolver gargalos operacionais críticos no mundo corporativo.
