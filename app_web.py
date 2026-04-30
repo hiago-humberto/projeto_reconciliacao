@@ -19,7 +19,7 @@ st.set_page_config(page_title="Audit Intelligence Hub", page_icon="🛡️", lay
 
 st.markdown("""
     <h1 style='text-align: center; color: #0D47A1;'>🛡️ Audit Intelligence Hub</h1>
-    <p style='text-align: center; color: #555; font-size: 1.2em;'>Pipeline Desacoplado & Data Lake (Enterprise Grade)</p>
+    <p style='text-align: center; color: #555; font-size: 1.2em;'>Inteligência de Dados para Fechamento Contábil e Controle de Caixa</p>
 """, unsafe_allow_html=True)
 
 # O FLUXO VISUAL VOLTOU AQUI
