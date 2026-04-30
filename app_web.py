@@ -14,7 +14,7 @@ logging.basicConfig(
     datefmt="%Y-%m-%d %H:%M:%S"
 )
 
-# --- 1. CONFIGURAÇÃO DE INTERFACE ---
+# --- 1. CONFIGURAÇÃO DE INTERFACE E FLUXO VISUAL ---
 st.set_page_config(page_title="Audit Intelligence Hub", page_icon="🛡️", layout="wide")
 
 st.markdown("""
@@ -22,26 +22,32 @@ st.markdown("""
     <p style='text-align: center; color: #555; font-size: 1.2em;'>Pipeline Desacoplado & Data Lake (Enterprise Grade)</p>
 """, unsafe_allow_html=True)
 
+# O FLUXO VISUAL VOLTOU AQUI
+st.markdown("""
+<div style='text-align: center; margin-top: 10px; margin-bottom: 30px;'>
+    <span style='background-color: #e3f2fd; padding: 10px 20px; border-radius: 20px; font-weight: bold; color: #1565c0;'>📤 1. Upload</span> ➔ 
+    <span style='background-color: #e3f2fd; padding: 10px 20px; border-radius: 20px; font-weight: bold; color: #1565c0;'>🛡️ 2. Validação</span> ➔ 
+    <span style='background-color: #e3f2fd; padding: 10px 20px; border-radius: 20px; font-weight: bold; color: #1565c0;'>⚙️ 3. Motor ETL</span> ➔ 
+    <span style='background-color: #1565c0; padding: 10px 20px; border-radius: 20px; font-weight: bold; color: white;'>📊 4. Insights</span>
+</div>
+""", unsafe_allow_html=True)
+
 st.divider()
 
 # --- 2. CAMADA DE DADOS E NEGÓCIOS (Totalmente Desacoplada do Streamlit) ---
 
 def validar_schema(df: pd.DataFrame, colunas_obrigatorias: List[str], nome_fonte: str) -> None:
-    """Valida o schema. Lança um erro puro em vez de chamar a UI."""
     colunas_atuais = [c.strip().upper() for c in df.columns]
     colunas_faltantes = [c for c in colunas_obrigatorias if c.upper() not in colunas_atuais]
     
     if colunas_faltantes:
         msg_erro = f"Falha de Schema no arquivo '{nome_fonte}'. Faltam as colunas: {colunas_faltantes}"
         logging.error(msg_erro)
-        # 🟢 CORREÇÃO 1: Levanta um erro genérico do Python (Desacoplamento)
         raise ValueError(msg_erro)
 
-# 🟢 CORREÇÃO BÔNUS: Cache de Dados para não reprocessar CSVs gigantes à toa
 @st.cache_data(show_spinner=False)
 def extrair_e_validar_dados(arquivo_erp, arquivos_bancos: List) -> Tuple[pd.DataFrame, pd.DataFrame]:
     logging.info("Iniciando extração...")
-    # Read CSV
     df_sistema = pd.read_csv(arquivo_erp, sep=';')
     validar_schema(df_sistema, ['Cliente', 'Valor_Esperado'], "Sistema ERP")
     df_sistema['Cliente'] = df_sistema['Cliente'].str.strip().str.upper()
@@ -52,7 +58,6 @@ def extrair_e_validar_dados(arquivo_erp, arquivos_bancos: List) -> Tuple[pd.Data
     
     return df_sistema, df_bancos
 
-# 🟢 CORREÇÃO 2: Tipagem forte e explícita nas funções
 def higienizar_dados(df_bancos: pd.DataFrame) -> pd.DataFrame:
     regex = r'TED |PIX |DOC | - DUPLICADO'
     df_bancos['Cliente_Limpo'] = (
@@ -65,9 +70,7 @@ def higienizar_dados(df_bancos: pd.DataFrame) -> pd.DataFrame:
     return df_bancos
 
 def auditar_transacoes(df_sistema: pd.DataFrame, df_bancos: pd.DataFrame, limite_fraude: float) -> pd.DataFrame:
-    # 🟢 CORREÇÃO 5: Preenchendo nulos ANTES do duplicated() para evitar bugs
     df_bancos['Valor_Recebido'] = df_bancos['Valor_Recebido'].fillna(0)
-    
     df_bancos['Eh_Duplicado'] = df_bancos.duplicated(subset=['Cliente_Limpo', 'Valor_Recebido', 'Banco'], keep=False)
     
     df_final = pd.merge(df_sistema, df_bancos, left_on='Cliente', right_on='Cliente_Limpo', how='left')
@@ -81,21 +84,15 @@ def auditar_transacoes(df_sistema: pd.DataFrame, df_bancos: pd.DataFrame, limite
     )
     return df_final
 
-# 🟢 CORREÇÃO 3 e 4: Camadas RAW (Data Lake real) + Idempotência (Timestamp)
 def gerenciar_data_lake(df_erp: pd.DataFrame, df_bancos_brutos: pd.DataFrame, df_final: pd.DataFrame) -> None:
     logging.info("Salvando nas camadas RAW e PROCESSED do Data Lake...")
-    
     os.makedirs("data/raw", exist_ok=True)
     os.makedirs("data/processed", exist_ok=True)
     
-    # Idempotência: Gera um timestamp único para esta rodada
     timestamp = time.strftime("%Y%m%d_%H%M%S")
     
-    # Camada RAW (Segurança)
     df_erp.to_parquet(f"data/raw/erp_raw_{timestamp}.parquet", index=False)
     df_bancos_brutos.to_parquet(f"data/raw/bancos_raw_{timestamp}.parquet", index=False)
-    
-    # Camada Processed (Auditoria)
     df_final.to_parquet(f"data/processed/reconciliado_{timestamp}.parquet", index=False)
 
 # --- 3. O ORQUESTRADOR ---
@@ -113,29 +110,28 @@ def orquestrar_pipeline_auditoria(arquivo_erp, arquivos_bancos, limite_fraude) -
 # --- 4. ÁREA DE INPUTS (FRONTEND / VIEW) ---
 with st.sidebar:
     st.header("⚙️ Configurações do Motor")
-    
-    # 🟢 CORREÇÃO 6: Configuração Externa. Se a variável de ambiente não existir, assume 5000.
     default_outlier = int(os.getenv("DEFAULT_OUTLIER_LIMIT", 5000))
     limite_outlier = st.slider("Sensibilidade de Outlier (R$)", 0, 20000, default_outlier)
     st.info("O motor marcará como 'Suspeito' qualquer valor recebido acima deste limite que não esteja no ERP.")
 
+# O EXPLICADOR CURTO VOLTOU AQUI, ANTES DOS UPLOADS
+st.markdown("### 📥 Ingestão de Dados")
+st.markdown("*Faça upload do ERP e extratos bancários para identificar divergências automaticamente.*")
+
 col1, col2 = st.columns([1, 2])
 with col1:
-    st.subheader("📤 Fonte de Dados ERP")
-    arq_sistema = st.file_uploader("Relatório de Contas a Receber", type=['csv'])
+    arq_sistema = st.file_uploader("Relatório de Contas a Receber (ERP)", type=['csv'])
 with col2:
-    st.subheader("📤 Extratos Bancários (Múltiplos)")
-    arq_bancos = st.file_uploader("Arraste todos os arquivos de uma vez", type=['csv'], accept_multiple_files=True)
+    arq_bancos = st.file_uploader("Extratos Bancários (Arraste múltiplos arquivos)", type=['csv'], accept_multiple_files=True)
 
 
-# --- 5. EXECUÇÃO (CONTROLLER com Tratamento de Erros Isolado) ---
+# --- 5. EXECUÇÃO (CONTROLLER) ---
 if st.button("🚀 INICIAR AUDITORIA INTELIGENTE", use_container_width=True):
     if arq_sistema and arq_bancos:
         start_time = time.time()
         
         with st.spinner("Executando pipeline de dados..."):
             try:
-                # 🟢 TENTA RODAR A FÁBRICA. A Interface trata o erro se a fábrica "gritar" um ValueError
                 df_final, qtd_erp, qtd_bancos = orquestrar_pipeline_auditoria(arq_sistema, arq_bancos, limite_outlier)
                 
             except ValueError as ve:
